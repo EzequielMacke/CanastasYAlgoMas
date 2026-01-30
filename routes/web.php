@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AccesoController;
+use App\Http\Controllers\IngresoController;
+use App\Http\Controllers\InsumoController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\UsuarioController;
 
@@ -25,3 +27,19 @@ Route::get('/usuarios/create', [UsuarioController::class, 'create'])->name('usua
 
 // Ruta para procesar la invitación de usuario
 Route::post('/usuarios/invitar', [UsuarioController::class, 'invitar'])->name('usuarios.invitar');
+
+// Ruta para el index de ingresos
+Route::get('/ingresos/index', [IngresoController::class, 'index'])->name('ingreso.index');
+
+// Ruta para el formulario de creación de ingresos
+Route::get('/ingresos/create', [IngresoController::class, 'create'])->name('ingreso.create');
+
+//Ruta para almacenar un nuevo ingreso
+Route::post('/ingresos/store', [IngresoController::class, 'store'])->name('ingreso.store');
+
+// Ruta para el index de insumos
+Route::get('/insumos/index', [InsumoController::class, 'index'])->name('insumo.index');
+
+// Ruta para mostrar el formulario de agregar insumo
+Route::get('/insumos/create', [InsumoController::class, 'create'])->name('insumo.create');
+
