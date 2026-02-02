@@ -19,4 +19,7 @@ class InsumoController extends Controller
     {
         return view('insumo.create');
     }
+    // store
+    // edit
+    // update
 }

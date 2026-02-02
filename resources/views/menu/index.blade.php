@@ -44,7 +44,7 @@
             </div>
             <!-- Tarjeta 3: Inventario -->
             <div class="col">
-                <a href="#" class="text-decoration-none">
+                <a href="{{ route('inventario.index') }}" class="text-decoration-none">
                     <div class="card h-100 text-center modern-card">
                         <div class="card-body d-flex flex-column align-items-center justify-content-center">
                             <i class="bi bi-archive modern-icon icon-inventario"></i>
@@ -75,13 +75,13 @@
                     </div>
                 </a>
             </div>
-            <!-- Tarjeta 6: Proveedores -->
+            <!-- Tarjeta 6: Insumos -->
             <div class="col">
-                <a href="#" class="text-decoration-none">
+                <a href="{{ route('insumo.index') }}" class="text-decoration-none">
                     <div class="card h-100 text-center modern-card">
                         <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                            <i class="bi bi-truck modern-icon icon-proveedores"></i>
-                            <div class="modern-title">Proveedores</div>
+                            <i class="bi bi-boxes modern-icon icon-ingresos"></i>
+                            <div class="modern-title">Insumos</div>
                         </div>
                     </div>
                 </a>

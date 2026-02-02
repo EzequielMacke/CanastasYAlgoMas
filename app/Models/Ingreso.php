@@ -10,7 +10,8 @@ class Ingreso extends Model
         'fecha_ingreso',
         'usuario_id',
         'deposito_id',
-        'observacion'
+        'observacion',
+        'estado_id'
     ];
 
     // Relación con usuario
@@ -29,5 +30,10 @@ class Ingreso extends Model
     public function detalles()
     {
         return $this->hasMany(IngresoDetalle::class);
+    }
+    // Relación con estado
+    public function estado()
+    {
+        return $this->belongsTo(Estado::class);     
     }
 }

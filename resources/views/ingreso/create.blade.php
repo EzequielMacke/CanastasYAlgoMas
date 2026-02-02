@@ -19,9 +19,9 @@
             <div class="alert alert-info small">{{ session('status') }}</div>
         @endif
 
-        <div class="row justify-content-center">
-            <div class="col-12 col-lg-10 mx-auto">
-                <form method="POST" action="#" class="p-0">
+        <div class="row">
+            <div class="col-12">
+                <form method="POST" action="{{ route('ingreso.store') }}" class="p-0">
                     @csrf
                     <div class="d-flex justify-content-end gap-2 mb-3">
                         <a href="{{ url()->previous() }}" class="btn btn-outline-secondary">Cancelar</a>
@@ -32,11 +32,18 @@
                     <div class="row g-3 align-items-center mb-3">
                         <div class="col-md-4">
                             <label class="form-label">Usuario</label>
-                            <input type="text" class="form-control-plaintext fw-semibold" value="{{ auth()->user()->name ?? '' }}" readonly>
+                            <input type="text" class="form-control-plaintext fw-semibold" value="{{ session('usuario.nombre', '') }} {{ session('usuario.apellido', '') }}" readonly>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Depósito</label>
-                            <input type="text" class="form-control-plaintext fw-semibold" value="{{ session('sucursal_nombre', 'No definido') }}" readonly>
+                            @php
+                                $deposito = null;
+                                $sucursalId = session('usuario.id_sucursal');
+                                if ($sucursalId) {
+                                    $deposito = \App\Models\Deposito::where('sucursal_id', $sucursalId)->first();
+                                }
+                            @endphp
+                            <input type="text" class="form-control-plaintext fw-semibold" value="{{ $deposito ? $deposito->descripcion : 'No definido' }}" readonly>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Fecha</label>
@@ -158,11 +165,32 @@ document.addEventListener('DOMContentLoaded', function() {
             crearBtn.style.opacity = (matches.length > 0) ? '0.5' : '1';
             crearBtn.disabled = false;
             crearBtn.onclick = () => {
-                input.value = val;
-                dropdown.style.display = 'none';
-                if (!insumos.includes(val)) insumos.unshift(val);
-                insumoCreado = true;
-                mostrarAlerta();
+                // Llamada AJAX para crear insumo
+                fetch('/ingresos/crear-insumo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                    },
+                    body: JSON.stringify({
+                        descripcion: val
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.insumo) {
+                        input.value = data.insumo.descripcion;
+                        if (!insumos.includes(data.insumo.descripcion)) insumos.unshift(data.insumo.descripcion);
+                        insumoCreado = true;
+                        mostrarAlerta();
+                        dropdown.style.display = 'none';
+                    } else {
+                        alert('Error al crear el insumo.');
+                    }
+                })
+                .catch(() => {
+                    alert('Error de red al crear el insumo.');
+                });
             };
             row.appendChild(crearBtn);
             // Solo mostrar el mensaje si no hay coincidencias

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Insumos - @yield('title', 'Aplicación')</title>
+    <title>Inventario - @yield('title', 'Aplicación')</title>
     @include('partials.head')
 </head>
 <body>
@@ -24,11 +24,8 @@
                 <div class="card shadow-sm border-0 rounded-4 w-100" style="width:100% !important;">
                     <div class="card-body p-4">
                         <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h3 class="text-primary fw-bold mb-0"><i class="bi bi-boxes me-2"></i>Lista de Insumos</h3>
+                            <h3 class="text-primary fw-bold mb-0"><i class="bi bi-box-seam me-2"></i>Inventario Actual</h3>
                             <div>
-                                <a href="{{ route('ingreso.create') }}" class="btn btn-success me-2">
-                                    <i class="bi bi-plus-lg me-1"></i> Nuevo Ingreso
-                                </a>
                                 <a href="{{ route('menu.index') }}" class="btn btn-outline-primary">
                                     <i class="bi bi-arrow-left me-1"></i> Volver al menú
                                 </a>
@@ -40,50 +37,64 @@
                                     <span class="input-group-text bg-white border-end-0 rounded-start-pill ps-4" id="search-addon" style="border-right:0;">
                                         <i class="bi bi-search"></i>
                                     </span>
-                                    <input type="text" class="form-control border-start-0 border-end-0 rounded-0" placeholder="Buscar insumo por cualquier campo..." aria-label="Buscar insumo" aria-describedby="search-addon" autocomplete="off" style="border-radius:0;">
+                                    <input type="text" class="form-control border-start-0 border-end-0 rounded-0" placeholder="Buscar inventario por insumo, unidad, ingreso..." aria-label="Buscar inventario" aria-describedby="search-addon" autocomplete="off" style="border-radius:0;">
+                                    <button class="input-group-text bg-white border-start-0 rounded-end-pill pe-4 dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="border-left:0; cursor:pointer;">
+                                        <i class="bi bi-funnel"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="filterDropdown">
+                                        <li><a class="dropdown-item" href="#">Insumo</a></li>
+                                        <li><a class="dropdown-item" href="#">Unidad de Medida</a></li>
+                                        <li><a class="dropdown-item" href="#">Ingreso</a></li>
+                                        <li><a class="dropdown-item" href="#">Cantidad</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="#">Todos los campos</a></li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
-                        <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4 justify-content-center align-items-stretch w-100 mx-0">
-                            @forelse($insumos as $insumo)
-                                <div class="col d-flex align-items-stretch">
-                                    <div class="card h-100 border-0 shadow-sm rounded-4 catalogo-insumo-card">
-                                        <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 160px; border-top-left-radius: 1.5rem; border-top-right-radius: 1.5rem;">
-                                            <span class="text-muted small">Sin foto disponible</span>
-                                        </div>
-                                        <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
-                                            <div class="fw-bold text-dark mb-1 fs-5">{{ $insumo->descripcion }}</div>
-                                            <div class="mb-2">
-                                                <span class="badge bg-info text-dark">{{ $insumo->unidadMedida->descripcion ?? '-' }}</span>
-                                            </div>
-                                            <div class="mb-2">
-                                                <span class="fw-semibold text-success">Stock: {{ $insumo->stock ?? '-' }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            @empty
-                                <div class="col-12">
-                                    <div class="alert alert-info text-center">No hay insumos registrados.</div>
-                                </div>
-                            @endforelse
+                        <div class="table-responsive">
+                            <table class="table table-hover table-borderless align-middle minimal-table">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Insumo</th>
+                                        <th>Cantidad</th>
+                                        <th>Unidad</th>
+                                        <th>Ingreso</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($inventarios as $inventario)
+                                        <tr>
+                                            <td class="text-primary fw-bold">{{ $inventario->id }}</td>
+                                            <td>{{ $inventario->insumo->descripcion ?? '-' }}</td>
+                                            <td class="fw-semibold text-success">{{ $inventario->cantidad }}</td>
+                                            <td><span class="badge bg-info text-dark">{{ $inventario->unidadMedida->descripcion ?? '-' }}</span></td>
+                                            <td>#{{ $inventario->ingreso->id ?? '-' }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted">No hay inventario registrado.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
                         </div>
                             <style>
-            .catalogo-insumo-card {
-                min-width: 220px;
-                max-width: 100%;
-                width: 100%;
-                margin: 0 auto;
-                border-radius: 1.5rem;
-                box-shadow: 0 2px 16px 0 #0d6efd10;
-                transition: box-shadow 0.2s, transform 0.2s;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
+            .minimal-table th {
+                font-weight: 500;
+                color: #222;
+                background: #f8fafc;
+                border-bottom: 1.5px solid #e0e3e7;
             }
-            .catalogo-insumo-card:hover {
-                box-shadow: 0 4px 32px 0 #0d6efd22;
-                transform: translateY(-2px) scale(1.03);
+            .minimal-table td {
+                background: #fff;
+                border-bottom: 1px solid #f0f4f8;
+                font-size: 1.05rem;
+                vertical-align: middle;
+            }
+            .minimal-table tr:hover td {
+                background: #f6faff;
             }
             .rounded-search-group .input-group {
                 border-radius: 2.5rem;

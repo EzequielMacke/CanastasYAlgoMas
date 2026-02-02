@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cargo;
 use App\Models\Deposito;
 use App\Models\Estado;
+use App\Models\Insumo;
 use App\Models\Sucursal;
 use App\Models\UnidadMedida;
 use App\Models\Usuario;
@@ -77,7 +78,7 @@ class AccesoController extends Controller
 		}
 
 		// Verificar si existen insumos, si no, crear 25 insumos de ejemplo
-		if (\App\Models\Insumo::count() === 0) {
+		if (Insumo::count() === 0) {
 			$estado = Estado::where('descripcion', 'Activo')->first();
 			$estadoId = $estado ? $estado->id : null;
 			$unidad = UnidadMedida::where('abreviacion', 'unid')->first();
@@ -88,7 +89,7 @@ class AccesoController extends Controller
 				'Garbanzos', 'Choclo', 'Tomate', 'Papa', 'Cebolla'
 			];
 			foreach ($insumos as $nombre) {
-				\App\Models\Insumo::create([
+				Insumo::create([
 					'descripcion' => $nombre,
 					'estado_id' => $estadoId,
 					'unidad_medida_id' => $unidadId,
