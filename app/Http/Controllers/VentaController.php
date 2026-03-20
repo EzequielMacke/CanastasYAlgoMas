@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AperturaCaja;
 use App\Models\Articulo;
 use App\Models\Stock;
 use App\Models\Venta;
@@ -24,6 +25,13 @@ class VentaController extends Controller
 
     public function create()
     {
+        $apertura = AperturaCaja::whereNull('cerrado_at')->latest('id')->first();
+
+        if (!$apertura) {
+            return redirect()->route('ventas.index')
+                ->with('error_apertura', 'Debe realizar la apertura de caja antes de registrar ventas.');
+        }
+
         $vendedores = Vendedor::where('estado_id', 1)->orderBy('nombre')->get();
         $articulos  = Articulo::with(['tipoArticulo', 'unidadMedida', 'latestPrecioVenta', 'precioCosto', 'stock'])
                         ->where('estado_id', 1)->orderBy('nombre')->get();
@@ -47,18 +55,20 @@ class VentaController extends Controller
             return back()->withInput()->with('errores_stock', $erroresStock);
         }
 
-        $total  = array_sum(array_map(fn($i) => $i['cantidad'] * $i['precio_unitario'], $request->items));
-        $numero = (Venta::max('numero') ?? 0) + 1;
+        $total    = array_sum(array_map(fn($i) => $i['cantidad'] * $i['precio_unitario'], $request->items));
+        $numero   = (Venta::max('numero') ?? 0) + 1;
+        $apertura = AperturaCaja::whereNull('cerrado_at')->latest('id')->first();
 
         $ventaCreada = null;
 
-        DB::transaction(function () use ($request, $total, $numero, &$ventaCreada) {
+        DB::transaction(function () use ($request, $total, $numero, $apertura, &$ventaCreada) {
             $ventaCreada = Venta::create([
-                'numero'         => $numero,
-                'vendedor_id'    => $request->vendedor_id,
-                'cliente_nombre' => $request->cliente_nombre,
-                'total'          => $total,
-                'estado_id'      => 1,
+                'numero'           => $numero,
+                'vendedor_id'      => $request->vendedor_id,
+                'apertura_caja_id' => $apertura?->id,
+                'cliente_nombre'   => $request->cliente_nombre,
+                'total'            => $total,
+                'estado_id'        => 1,
             ]);
 
             foreach ($request->items as $item) {

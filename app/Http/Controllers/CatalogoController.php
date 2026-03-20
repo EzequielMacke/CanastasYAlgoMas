@@ -13,6 +13,7 @@ class CatalogoController extends Controller
 
         $articulos = Articulo::with(['tipoArticulo', 'unidadMedida', 'latestPrecioVenta', 'stock'])
             ->where('estado_id', 1)
+            ->where('visible_catalogo', true)
             ->when($buscar, fn($q) => $q->where('nombre', 'like', "%{$buscar}%"))
             ->orderBy('nombre')
             ->get();
@@ -22,7 +23,7 @@ class CatalogoController extends Controller
 
     public function show(Articulo $articulo)
     {
-        if ($articulo->estado_id !== 1) {
+        if ($articulo->estado_id !== 1 || !$articulo->visible_catalogo) {
             abort(404);
         }
 

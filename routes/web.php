@@ -9,6 +9,7 @@ use App\Http\Controllers\StockController;
 use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\ComisionController;
 use App\Http\Controllers\VendedorController;
+use App\Http\Controllers\AperturaCajaController;
 use App\Http\Controllers\VentaController;
 use Illuminate\Support\Facades\Route;
 
@@ -53,7 +54,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('articulos/{articulo}/edit',         [ArticuloController::class, 'edit'])->name('articulos.edit');
         Route::put('articulos/{articulo}',              [ArticuloController::class, 'update'])->name('articulos.update');
         Route::delete('articulos/{articulo}',           [ArticuloController::class, 'destroy'])->name('articulos.destroy');
-        Route::patch('articulos/{articulo}/reactivar',  [ArticuloController::class, 'reactivar'])->name('articulos.reactivar');
+        Route::patch('articulos/{articulo}/reactivar',       [ArticuloController::class, 'reactivar'])->name('articulos.reactivar');
+        Route::patch('articulos/{articulo}/toggle-catalogo', [ArticuloController::class, 'toggleCatalogo'])->name('articulos.toggle-catalogo');
 
         Route::get('recetas',                        [RecetaController::class, 'index'])->name('recetas.index');
         Route::get('recetas/create',                 [RecetaController::class, 'create'])->name('recetas.create');
@@ -79,6 +81,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('precios-venta', [PrecioVentaController::class, 'store'])->name('precios-venta.store');
 
         Route::get('comisiones', [ComisionController::class, 'index'])->name('comisiones.index');
+
+        Route::get('apertura-caja',                             [AperturaCajaController::class, 'index'])->name('apertura-caja.index');
+        Route::post('apertura-caja/abrir',                      [AperturaCajaController::class, 'abrir'])->name('apertura-caja.abrir');
+        Route::post('apertura-caja/{aperturaCaja}/cerrar',      [AperturaCajaController::class, 'cerrar'])->name('apertura-caja.cerrar');
+        Route::get('apertura-caja/{aperturaCaja}',              [AperturaCajaController::class, 'show'])->name('apertura-caja.show');
     });
 
 });

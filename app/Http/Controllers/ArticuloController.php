@@ -128,6 +128,16 @@ class ArticuloController extends Controller
         return redirect()->route('articulos.index', ['tab' => 'activos'])->with('exito', 'Artículo reactivado.');
     }
 
+    public function toggleCatalogo(Articulo $articulo)
+    {
+        $articulo->update(['visible_catalogo' => !$articulo->visible_catalogo]);
+
+        return back()->with('exito', $articulo->visible_catalogo
+            ? "'{$articulo->nombre}' ahora es visible en el catálogo."
+            : "'{$articulo->nombre}' ocultado del catálogo."
+        );
+    }
+
     /**
      * Creación rápida de artículo vía AJAX (modal en ingresos).
      */

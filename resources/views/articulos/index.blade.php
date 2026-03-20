@@ -45,6 +45,7 @@
                             <th>Nombre</th>
                             <th>Tipo</th>
                             <th>Unidad</th>
+                            <th style="width:110px;text-align:center;">Catálogo</th>
                             <th style="width:260px;"></th>
                         </tr>
                     </thead>
@@ -66,6 +67,20 @@
                             <td style="font-weight:500;">{{ $articulo->nombre }}</td>
                             <td style="color:#6b5744;">{{ $articulo->tipoArticulo->nombre }}</td>
                             <td style="color:#a08c78;font-size:13px;">{{ $articulo->unidadMedida->abreviatura }}</td>
+                            <td style="text-align:center;">
+                                <form method="POST" action="{{ route('articulos.toggle-catalogo', $articulo) }}" style="display:inline;">
+                                    @csrf @method('PATCH')
+                                    <button type="submit" title="{{ $articulo->visible_catalogo ? 'Ocultar del catálogo' : 'Mostrar en catálogo' }}"
+                                            style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;transition:opacity 0.15s;"
+                                            onmouseenter="this.style.opacity='.7'" onmouseleave="this.style.opacity='1'">
+                                        @if($articulo->visible_catalogo)
+                                            <i data-lucide="eye" style="width:18px;height:18px;color:#4caf7d;"></i>
+                                        @else
+                                            <i data-lucide="eye-off" style="width:18px;height:18px;color:#c4b8ac;"></i>
+                                        @endif
+                                    </button>
+                                </form>
+                            </td>
                             <td>
                                 <div class="td-acciones">
                                     @if($articulo->esProduccion())

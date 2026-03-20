@@ -462,6 +462,12 @@
                     Comisiones
                 </a>
             </li>
+            <li>
+                <a href="{{ route('apertura-caja.index') }}" class="{{ request()->routeIs('apertura-caja.*') ? 'activo' : '' }}">
+                    <i data-lucide="store" style="width:15px;height:15px;"></i>
+                    Caja
+                </a>
+            </li>
         @endif
     </ul>
 
@@ -485,6 +491,20 @@
         <div class="flash">
             <i data-lucide="circle-check" style="width:16px;height:16px;"></i>
             {{ session('exito') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div style="background:#fff0ee;border:1px solid #f5c6c4;border-radius:8px;padding:14px 18px;margin-bottom:24px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:#c0392b;">
+            <i data-lucide="circle-alert" style="width:16px;height:16px;flex-shrink:0;"></i>
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if(session('error_apertura'))
+        <div style="background:#fff5e6;border:1px solid #f5ddb0;border-radius:8px;padding:14px 18px;margin-bottom:24px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:#b45309;">
+            <i data-lucide="triangle-alert" style="width:16px;height:16px;flex-shrink:0;"></i>
+            {{ session('error_apertura') }}
         </div>
     @endif
 

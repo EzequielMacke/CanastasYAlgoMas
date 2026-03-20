@@ -9,7 +9,9 @@ use App\Models\Estado;
 
 class Articulo extends Model
 {
-    protected $fillable = ['nombre', 'descripcion', 'foto', 'tipo_articulo_id', 'unidad_medida_id', 'estado_id'];
+    protected $fillable = ['nombre', 'descripcion', 'foto', 'tipo_articulo_id', 'unidad_medida_id', 'estado_id', 'visible_catalogo'];
+
+    protected $casts = ['visible_catalogo' => 'boolean'];
 
     public function tipoArticulo()
     {
