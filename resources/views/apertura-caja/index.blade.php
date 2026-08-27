@@ -118,9 +118,17 @@
 
 {{-- Historial --}}
 <div class="card" style="padding:0;overflow:hidden;">
-    <div style="padding:16px 20px;border-bottom:1px solid #f0ebe4;display:flex;align-items:center;gap:8px;">
-        <i data-lucide="history" style="width:16px;height:16px;color:#a08c78;"></i>
-        <span style="font-weight:600;font-size:14px;">Historial de aperturas</span>
+    <div style="padding:16px 20px;border-bottom:1px solid #f0ebe4;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+            <i data-lucide="history" style="width:16px;height:16px;color:#a08c78;"></i>
+            <span style="font-weight:600;font-size:14px;">Historial de aperturas</span>
+        </div>
+        <div style="position:relative;max-width:220px;width:100%;">
+            <i data-lucide="search" style="width:14px;height:14px;position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#c4b8ac;pointer-events:none;"></i>
+            <input type="text" id="buscador-aperturas"
+                   style="width:100%;padding:7px 12px 7px 32px;border:1px solid #d8cfc7;border-radius:7px;background:#fff;font-size:13px;font-family:inherit;color:#2c2117;outline:none;"
+                   placeholder="Buscar por fecha…" autocomplete="off">
+        </div>
     </div>
 
     @if($aperturas->isEmpty())
@@ -144,7 +152,7 @@
             </thead>
             <tbody>
                 @foreach($aperturas as $ap)
-                <tr>
+                <tr class="fila-apertura" data-buscar="{{ mb_strtolower($ap->fecha->format('d/m/Y')) }}">
                     <td><span class="badge-id">#{{ $ap->id }}</span></td>
                     <td>{{ $ap->fecha->format('d/m/Y') }}</td>
                     <td style="color:#6b5744;">{{ $ap->abierto_at->format('H:i') }}</td>
@@ -182,5 +190,29 @@
         </table>
     @endif
 </div>
+
+<div id="sin-resultados-aperturas" class="empty" style="display:none;">
+    <i data-lucide="search-x" style="width:36px;height:36px;"></i>
+    <span>No se encontraron aperturas para esa fecha.</span>
+</div>
+
+<script>
+    const buscadorAperturas = document.getElementById('buscador-aperturas');
+    if (buscadorAperturas) {
+        buscadorAperturas.addEventListener('input', function (e) {
+            const term  = e.target.value.trim().toLowerCase();
+            const filas = document.querySelectorAll('.fila-apertura');
+            let visibles = 0;
+
+            filas.forEach(function (fila) {
+                const coincide = fila.dataset.buscar.includes(term);
+                fila.style.display = coincide ? '' : 'none';
+                if (coincide) visibles++;
+            });
+
+            document.getElementById('sin-resultados-aperturas').style.display = (filas.length && visibles === 0) ? 'flex' : 'none';
+        });
+    }
+</script>
 
 @endsection

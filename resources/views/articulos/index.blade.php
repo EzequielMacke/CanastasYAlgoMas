@@ -12,6 +12,13 @@
     </a>
 </div>
 
+<div class="search-wrap" style="position:relative;max-width:320px;margin-bottom:16px;">
+    <i data-lucide="search" style="width:16px;height:16px;position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#c4b8ac;pointer-events:none;"></i>
+    <input type="text" id="buscador-articulos" class="search-input"
+           style="width:100%;padding:10px 14px 10px 38px;border:1px solid #d8cfc7;border-radius:8px;background:#fff;font-size:14px;font-family:inherit;color:#2c2117;outline:none;"
+           placeholder="Buscar por nombre, tipo o unidad…" autocomplete="off">
+</div>
+
 <div class="card" style="padding: 0; overflow: hidden;">
     <div class="tabs">
         <a href="{{ route('articulos.index', ['tab' => 'activos']) }}"
@@ -51,7 +58,7 @@
                     </thead>
                     <tbody>
                         @foreach($activos as $articulo)
-                        <tr>
+                        <tr class="fila-articulo" data-buscar="{{ mb_strtolower($articulo->nombre.' '.$articulo->tipoArticulo->nombre.' '.$articulo->unidadMedida->abreviatura) }}">
                             <td><span class="badge-id">{{ $articulo->id }}</span></td>
                             <td>
                                 @if($articulo->foto)
@@ -136,7 +143,7 @@
                     </thead>
                     <tbody>
                         @foreach($inactivos as $articulo)
-                        <tr>
+                        <tr class="fila-articulo" data-buscar="{{ mb_strtolower($articulo->nombre.' '.$articulo->tipoArticulo->nombre.' '.$articulo->unidadMedida->abreviatura) }}">
                             <td><span class="badge-id">{{ $articulo->id }}</span></td>
                             <td>
                                 @if($articulo->foto)
@@ -183,5 +190,26 @@
 
     </div>
 </div>
+
+<div id="sin-resultados" class="empty" style="display:none;">
+    <i data-lucide="search-x" style="width:36px;height:36px;"></i>
+    <span>No se encontraron artículos.</span>
+</div>
+
+<script>
+    document.getElementById('buscador-articulos').addEventListener('input', function (e) {
+        const term = e.target.value.trim().toLowerCase();
+        const filas = document.querySelectorAll('.tab-content .fila-articulo');
+        let visibles = 0;
+
+        filas.forEach(function (fila) {
+            const coincide = fila.dataset.buscar.includes(term);
+            fila.style.display = coincide ? '' : 'none';
+            if (coincide) visibles++;
+        });
+
+        document.getElementById('sin-resultados').style.display = (filas.length && visibles === 0) ? 'flex' : 'none';
+    });
+</script>
 
 @endsection

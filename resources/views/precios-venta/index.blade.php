@@ -27,12 +27,13 @@
 
 {{-- Buscador --}}
 <form method="GET" action="{{ route('precios-venta.index') }}" class="search-wrap">
+    <input type="hidden" name="filtro" value="{{ $filtro }}">
     <div class="input-wrap" style="max-width:360px;flex:1;">
         <i data-lucide="search" style="width:15px;height:15px;left:12px;position:absolute;color:#c4b8ac;pointer-events:none;"></i>
         <input type="text" name="buscar" value="{{ $buscar ?? '' }}" placeholder="Buscar artículo..." style="padding-left:38px;" autocomplete="off">
     </div>
     @if($buscar)
-        <a href="{{ route('precios-venta.index') }}" class="btn btn-secondary btn-sm">
+        <a href="{{ route('precios-venta.index', ['filtro' => $filtro]) }}" class="btn btn-secondary btn-sm">
             <i data-lucide="x" style="width:13px;height:13px;"></i>
             Limpiar
         </a>
@@ -40,6 +41,27 @@
 </form>
 
 <div class="card" style="padding:0;overflow:hidden;">
+    <div class="tabs">
+        <a href="{{ route('precios-venta.index', array_filter(['filtro' => 'todos', 'buscar' => $buscar])) }}"
+           class="tab-btn {{ $filtro === 'todos' ? 'activo' : '' }}">
+            <i data-lucide="list" style="width:14px;height:14px;"></i>
+            Todos
+            <span class="tab-count">{{ $conPrecio->count() + $sinPrecio->count() }}</span>
+        </a>
+        <a href="{{ route('precios-venta.index', array_filter(['filtro' => 'con_precio', 'buscar' => $buscar])) }}"
+           class="tab-btn {{ $filtro === 'con_precio' ? 'activo' : '' }}">
+            <i data-lucide="tag" style="width:14px;height:14px;"></i>
+            Con precio
+            <span class="tab-count">{{ $conPrecio->count() }}</span>
+        </a>
+        <a href="{{ route('precios-venta.index', array_filter(['filtro' => 'sin_precio', 'buscar' => $buscar])) }}"
+           class="tab-btn {{ $filtro === 'sin_precio' ? 'activo' : '' }}">
+            <i data-lucide="ban" style="width:14px;height:14px;"></i>
+            Sin precio
+            <span class="tab-count">{{ $sinPrecio->count() }}</span>
+        </a>
+    </div>
+
     @if($articulos->isEmpty())
         <div class="empty">
             <i data-lucide="tag" style="width:28px;height:28px;"></i>

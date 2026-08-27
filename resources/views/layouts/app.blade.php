@@ -468,6 +468,12 @@
                     Caja
                 </a>
             </li>
+            <li>
+                <a href="{{ route('finanzas.index') }}" class="{{ request()->routeIs('finanzas.*') ? 'activo' : '' }}">
+                    <i data-lucide="wallet" style="width:15px;height:15px;"></i>
+                    Finanzas
+                </a>
+            </li>
         @endif
     </ul>
 

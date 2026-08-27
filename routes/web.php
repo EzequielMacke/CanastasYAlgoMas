@@ -10,6 +10,7 @@ use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\ComisionController;
 use App\Http\Controllers\VendedorController;
 use App\Http\Controllers\AperturaCajaController;
+use App\Http\Controllers\FinanzasController;
 use App\Http\Controllers\VentaController;
 use Illuminate\Support\Facades\Route;
 
@@ -86,6 +87,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('apertura-caja/abrir',                      [AperturaCajaController::class, 'abrir'])->name('apertura-caja.abrir');
         Route::post('apertura-caja/{aperturaCaja}/cerrar',      [AperturaCajaController::class, 'cerrar'])->name('apertura-caja.cerrar');
         Route::get('apertura-caja/{aperturaCaja}',              [AperturaCajaController::class, 'show'])->name('apertura-caja.show');
+
+        Route::get('finanzas', [FinanzasController::class, 'index'])->name('finanzas.index');
     });
 
 });

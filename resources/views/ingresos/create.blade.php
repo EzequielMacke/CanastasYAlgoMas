@@ -30,6 +30,23 @@
     .calc-row { display:flex; justify-content:space-between; padding:3px 0; }
     .calc-label { color:#a08c78; }
     .calc-val { font-weight:600; color:#2c2117; }
+    .combo-wrap { position:relative; }
+    .combo-input {
+        width:100%; padding:10px 14px; border:1px solid #d8cfc7; border-radius:7px;
+        background:#fdfaf7; font-size:14px; font-family:inherit; color:#2c2117; outline:none;
+        transition:border-color 0.2s, box-shadow 0.2s;
+    }
+    .combo-input:focus { border-color:#a08c78; background:#fff; box-shadow:0 0 0 3px rgba(160,140,120,0.15); }
+    .combo-list {
+        display:none; position:absolute; top:calc(100% + 4px); left:0; right:0;
+        background:#fff; border:1px solid #d8cfc7; border-radius:8px;
+        box-shadow:0 8px 24px rgba(0,0,0,0.12); max-height:240px; overflow-y:auto; z-index:20;
+    }
+    .combo-list.open { display:block; }
+    .combo-item { padding:9px 14px; font-size:13px; cursor:pointer; display:flex; justify-content:space-between; gap:8px; }
+    .combo-item:hover { background:#f5f0eb; }
+    .combo-item .combo-tipo { color:#a08c78; font-size:12px; white-space:nowrap; }
+    .combo-empty { padding:12px 14px; font-size:13px; color:#c4b8ac; }
 </style>
 
 <div class="section-header">
@@ -57,20 +74,27 @@
         </div>
 
         <div class="form-group">
-            <label for="articulo_id">Artículo</label>
+            <label for="articulo-buscador">Artículo</label>
             <div style="display:flex;gap:8px;">
-                <select id="articulo_id" name="articulo_id" required style="flex:1;">
-                    <option value="">— Seleccioná un artículo —</option>
-                    @foreach($articulos as $art)
-                        <option value="{{ $art->id }}"
-                                data-unidad-abrev="{{ $art->unidadMedida->abreviatura }}"
-                                data-unidad-nombre="{{ $art->unidadMedida->nombre }}"
-                                data-es-produccion="{{ $art->esProduccion() ? '1' : '0' }}"
-                                {{ old('articulo_id') == $art->id ? 'selected' : '' }}>
-                            {{ $art->nombre }} ({{ $art->tipoArticulo->nombre }})
-                        </option>
-                    @endforeach
-                </select>
+                <div class="combo-wrap" style="flex:1;">
+                    <input type="text" id="articulo-buscador" class="combo-input" autocomplete="off"
+                           placeholder="Buscar artículo por nombre o tipo…">
+                    <select id="articulo_id" name="articulo_id" required style="display:none;">
+                        <option value="">— Seleccioná un artículo —</option>
+                        @foreach($articulos as $art)
+                            <option value="{{ $art->id }}"
+                                    data-nombre="{{ $art->nombre }}"
+                                    data-tipo="{{ $art->tipoArticulo->nombre }}"
+                                    data-unidad-abrev="{{ $art->unidadMedida->abreviatura }}"
+                                    data-unidad-nombre="{{ $art->unidadMedida->nombre }}"
+                                    data-es-produccion="{{ $art->esProduccion() ? '1' : '0' }}"
+                                    {{ old('articulo_id') == $art->id ? 'selected' : '' }}>
+                                {{ $art->nombre }} ({{ $art->tipoArticulo->nombre }})
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="combo-list" id="articulo-lista"></div>
+                </div>
                 <button type="button" id="btn-nuevo-articulo" class="btn btn-secondary" style="white-space:nowrap;">
                     <i data-lucide="plus" style="width:14px;height:14px;"></i>
                     Nuevo
@@ -329,7 +353,77 @@
     });
     inputPrecio.addEventListener('input', actualizarCalculo);
 
-    if (selArticulo.value) actualizarUnidad();
+    // ── Combobox de artículo ─────────────────────────────────────────────
+    const comboInput = document.getElementById('articulo-buscador');
+    const comboLista  = document.getElementById('articulo-lista');
+    let filtradasActual = [];
+
+    function etiquetaOpcion(opt) {
+        return opt.dataset.nombre + ' (' + opt.dataset.tipo + ')';
+    }
+
+    function renderLista(filtro) {
+        const term = filtro.trim().toLowerCase();
+        const opciones = Array.from(selArticulo.options).filter(o => o.value !== '');
+        filtradasActual = opciones.filter(o =>
+            o.dataset.nombre.toLowerCase().includes(term) || o.dataset.tipo.toLowerCase().includes(term)
+        );
+
+        comboLista.innerHTML = '';
+        if (!filtradasActual.length) {
+            comboLista.innerHTML = '<div class="combo-empty">Sin coincidencias.</div>';
+        } else {
+            filtradasActual.forEach(o => {
+                const item = document.createElement('div');
+                item.className = 'combo-item';
+                item.innerHTML = `<span>${o.dataset.nombre}</span><span class="combo-tipo">${o.dataset.tipo}</span>`;
+                item.addEventListener('click', () => seleccionarArticulo(o));
+                comboLista.appendChild(item);
+            });
+        }
+        comboLista.classList.add('open');
+    }
+
+    function seleccionarArticulo(opcion) {
+        selArticulo.value = opcion.value;
+        comboInput.value = etiquetaOpcion(opcion);
+        comboLista.classList.remove('open');
+        selArticulo.dispatchEvent(new Event('change'));
+    }
+
+    comboInput.addEventListener('focus', function () {
+        renderLista('');
+        comboInput.select();
+    });
+    comboInput.addEventListener('input', function () {
+        renderLista(comboInput.value);
+    });
+    comboInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            comboLista.classList.remove('open');
+            comboInput.blur();
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (filtradasActual.length === 1 || (filtradasActual.length > 1 && comboLista.classList.contains('open'))) {
+                seleccionarArticulo(filtradasActual[0]);
+            }
+        }
+    });
+    comboInput.addEventListener('blur', function () {
+        setTimeout(function () {
+            comboLista.classList.remove('open');
+            const seleccionado = selArticulo.options[selArticulo.selectedIndex];
+            comboInput.value = selArticulo.value ? etiquetaOpcion(seleccionado) : '';
+        }, 150);
+    });
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('.combo-wrap')) comboLista.classList.remove('open');
+    });
+
+    if (selArticulo.value) {
+        comboInput.value = etiquetaOpcion(selArticulo.options[selArticulo.selectedIndex]);
+        actualizarUnidad();
+    }
 
     // ── Modal ──────────────────────────────────────────────────────────────
     const modal       = document.getElementById('modal-articulo');
@@ -369,10 +463,13 @@
             const opt = document.createElement('option');
             opt.value = data.id;
             opt.textContent = data.nombre + ' (' + data.tipo + ')';
+            opt.dataset.nombre       = data.nombre;
+            opt.dataset.tipo         = data.tipo;
             opt.dataset.unidadAbrev  = data.unidad_abrev;
             opt.dataset.unidadNombre = data.unidad_nombre;
             opt.selected = true;
             selArticulo.appendChild(opt);
+            comboInput.value = etiquetaOpcion(opt);
             actualizarUnidad();
             cerrarModal();
         } catch(e) {

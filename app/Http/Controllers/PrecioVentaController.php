@@ -11,6 +11,7 @@ class PrecioVentaController extends Controller
     public function index(Request $request)
     {
         $buscar = $request->query('buscar');
+        $filtro = $request->query('filtro', 'todos');
 
         $query = Articulo::with(['tipoArticulo', 'unidadMedida', 'precioCosto', 'latestPrecioVenta'])
             ->where('estado_id', 1);
@@ -21,7 +22,16 @@ class PrecioVentaController extends Controller
 
         $articulos = $query->orderBy('nombre')->get();
 
-        return view('precios-venta.index', compact('articulos', 'buscar'));
+        $conPrecio = $articulos->filter(fn($a) => $a->latestPrecioVenta !== null)->values();
+        $sinPrecio = $articulos->filter(fn($a) => $a->latestPrecioVenta === null)->values();
+
+        $articulos = match ($filtro) {
+            'con_precio' => $conPrecio,
+            'sin_precio' => $sinPrecio,
+            default      => $articulos,
+        };
+
+        return view('precios-venta.index', compact('articulos', 'buscar', 'filtro', 'conPrecio', 'sinPrecio'));
     }
 
     public function store(Request $request)

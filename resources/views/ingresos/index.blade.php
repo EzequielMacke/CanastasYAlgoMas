@@ -12,6 +12,13 @@
     </a>
 </div>
 
+<div class="search-wrap" style="position:relative;max-width:320px;margin-bottom:16px;">
+    <i data-lucide="search" style="width:16px;height:16px;position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#c4b8ac;pointer-events:none;"></i>
+    <input type="text" id="buscador-ingresos" class="search-input"
+           style="width:100%;padding:10px 14px 10px 38px;border:1px solid #d8cfc7;border-radius:8px;background:#fff;font-size:14px;font-family:inherit;color:#2c2117;outline:none;"
+           placeholder="Buscar por artículo o fecha…" autocomplete="off">
+</div>
+
 <div class="card" style="padding: 0; overflow: hidden;">
     <div class="tabs">
         <a href="{{ route('ingresos.index', ['tab' => 'activos']) }}"
@@ -51,7 +58,7 @@
                     </thead>
                     <tbody>
                         @foreach($activos as $ingreso)
-                        <tr>
+                        <tr class="fila-ingreso" data-buscar="{{ mb_strtolower($ingreso->articulo->nombre.' '.$ingreso->fecha->format('d/m/Y')) }}">
                             <td><span class="badge-id">{{ $ingreso->id }}</span></td>
                             <td style="color:#6b5744;font-size:13px;">{{ $ingreso->fecha->format('d/m/Y') }}</td>
                             <td style="font-weight:500;">{{ $ingreso->articulo->nombre }}</td>
@@ -107,7 +114,7 @@
                     </thead>
                     <tbody>
                         @foreach($inactivos as $ingreso)
-                        <tr>
+                        <tr class="fila-ingreso" data-buscar="{{ mb_strtolower($ingreso->articulo->nombre.' '.$ingreso->fecha->format('d/m/Y')) }}">
                             <td><span class="badge-id">{{ $ingreso->id }}</span></td>
                             <td style="color:#c4b8ac;font-size:13px;">{{ $ingreso->fecha->format('d/m/Y') }}</td>
                             <td style="font-weight:500;color:#a08c78;">{{ $ingreso->articulo->nombre }}</td>
@@ -145,5 +152,26 @@
 
     </div>
 </div>
+
+<div id="sin-resultados" class="empty" style="display:none;">
+    <i data-lucide="search-x" style="width:36px;height:36px;"></i>
+    <span>No se encontraron ingresos.</span>
+</div>
+
+<script>
+    document.getElementById('buscador-ingresos').addEventListener('input', function (e) {
+        const term = e.target.value.trim().toLowerCase();
+        const filas = document.querySelectorAll('.tab-content .fila-ingreso');
+        let visibles = 0;
+
+        filas.forEach(function (fila) {
+            const coincide = fila.dataset.buscar.includes(term);
+            fila.style.display = coincide ? '' : 'none';
+            if (coincide) visibles++;
+        });
+
+        document.getElementById('sin-resultados').style.display = (filas.length && visibles === 0) ? 'flex' : 'none';
+    });
+</script>
 
 @endsection
